@@ -69,6 +69,11 @@ module.exports = {
     // View the bundle analyzer report after build finishes:
     // `npm run build --report`
     // Set to `true` or `false` to always turn it on or off
-    bundleAnalyzerReport: process.env.npm_config_report
+    bundleAnalyzerReport: process.env.npm_config_report,
+
+    // 下面是是否在生产环境中压缩代码，如果要压缩必须安装compression-webpack-plugin
+    productionGzip: false,
+    // 下面定义要压缩哪些类型的文件
+    productionGzipExtensions: ['js', 'css'],
   }
 }

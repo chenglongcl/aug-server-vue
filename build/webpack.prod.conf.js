@@ -9,6 +9,8 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
+const CompressionWebpackPlugin = require('compression-webpack-plugin')
+
 
 const env = require('../config/prod.env')
 
@@ -99,13 +101,30 @@ const webpackConfig = merge(baseWebpackConfig, {
     }),
 
     // copy custom static assets
-    new CopyWebpackPlugin([
-      {
-        from: path.resolve(__dirname, '../static'),
-        to: config.build.assetsSubDirectory,
-        ignore: ['.*']
-      }
-    ])
+    new CopyWebpackPlugin([{
+      from: path.resolve(__dirname, '../static'),
+      to: config.build.assetsSubDirectory,
+      ignore: ['.*']
+    }]),
+
+    new CompressionWebpackPlugin({
+      // asset： 目标资源名称。 [file] 会被替换成原始资源。
+      // [path] 会被替换成原始资源的路径， [query] 会被替换成查询字符串。默认值是 "[path].gz[query]"。
+      asset: '[path].gz[query]',
+      // algorithm： 可以是 function(buf, callback) 或者字符串。对于字符串来说依照 zlib 的算法(或者 zopfli 的算法)。默认值是 "gzip"。
+      algorithm: 'gzip',
+      // test： 所有匹配该正则的资源都会被处理。默认值是全部资源。
+      // config.build.productionGzipExtensions 这里是['js', 'css']
+      test: new RegExp(
+        '\\.(' +
+        config.build.productionGzipExtensions.join('|') +
+        ')$'
+      ),
+      // threshold： 只有大小大于该值的资源会被处理。单位是 bytes。默认值是 0。
+      threshold: 10240,
+      // minRatio： 只有压缩率小于这个值的资源才会被处理。默认值是 0.8。
+      minRatio: 0.8
+    })
   ]
 })
 
