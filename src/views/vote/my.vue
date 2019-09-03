@@ -1,0 +1,378 @@
+<template>
+  <div class="vote-my-page">
+    <div class="header-img">
+      <img src="https://aisyweixinpic.oss-cn-shanghai.aliyuncs.com/20171223/augadmin/fake.png" alt="">
+    </div>
+    <div class="arc-panel">
+      <div class="works-info">
+        <flexbox>
+          <flexbox-item :span="8">
+            <div class="number">
+              推广人数: <span>125</span>
+            </div>
+            <div class="tip">生成海报,分享推广赢取奖励</div>
+          </flexbox-item>
+          <flexbox-item :span="4">
+            <span class="share-btn" @click="createPoster">
+              立即分享
+            </span>
+          </flexbox-item>
+        </flexbox>
+      </div>
+    </div>
+    <div class="vote-works-wrapper">
+      <div class="tips">
+        <p>填写信息</p>
+        <p class="secondary">征集时间:2019-09-09至2019-09-09</p>
+      </div>
+      <div class="form-wrapper">
+        <flexbox :gutter="10" class="form-row">
+          <flexbox-item :span="2" class="cell-title">
+            <span>姓名</span>
+          </flexbox-item>
+          <flexbox-item>
+            <input type="text">
+          </flexbox-item>
+        </flexbox>
+        <flexbox :gutter="10" class="form-row">
+          <flexbox-item :span="2" class="cell-title">
+            <span>广告语</span>
+          </flexbox-item>
+          <flexbox-item>
+            <textarea></textarea>
+          </flexbox-item>
+        </flexbox>
+        <button class="submit-btn">立即提交</button>
+      </div>
+    </div>
+    <div class="vote-rules">
+      <div class="title">活动说明 :</div>
+      <div class="content">
+        <p style="font-size: 14px;">
+          1、打开“十堰广播电视台”微信公众号或“十堰广电”新闻客户端 点击“房县黄酒”进入活动页面,按提示进行投票。
+        </p>
+        <p style="font-size: 14px;">
+          2、每个微信用户每天可投3票，每个客户端用户每天可投5票，投票对象不限。
+        </p>
+        <p style="font-size: 14px;">
+          3、网络投票前十名入围决赛。决赛阶段网民网络投票得分占比20%,专家评委评分占比80%。
+        </p>
+        <p style="font-size: 14px;">
+          4、严禁刷票行为，一经发现立即取消该作品参选资格。
+        </p>
+        <p style="font-size: 14px;">
+          5、网络投票结果将于投票结束后3天内通过十堰广播电视台微信公众号和十堰广电新闻客户端公布。
+        </p>
+        <p style="font-size: 14px;">
+          6、本活动最终解释权归房县黄酒产业发展中心所有。
+        </p>
+        <p style="margin-top:1rem">
+        </p>
+      </div>
+    </div>
+    <!--other-->
+    <!--海报DOM-->
+    <div class="poster" ref="poster">
+      <div class="wrapper">
+        <div class="bg">
+          <img src="https://aisyweixinpic.oss-cn-shanghai.aliyuncs.com/20171223/20190831poster.jpg" alt="">
+        </div>
+        <div class="qrcode">
+          <img :src="qrocdeSrc" alt="">
+        </div>
+      </div>
+    </div>
+    <!--生成结果-->
+    <x-dialog v-model="showPosterDialog" :hide-on-blur="false" :dialog-style="{'max-width': '100%', width: '100%', height: '70%', 'background-color': 'transparent'}" class="poster-dialog">
+      <div class="tip">
+        长按图片可以保存呦!
+      </div>
+      <div class="image">
+        <img :src="posterSrc" alt="">
+      </div>
+      <x-icon type="ios-close-outline" style="fill:#fff;" @click="showPosterDialog = false"></x-icon>
+    </x-dialog>
+    <!--生成前过渡遮罩-->
+    <div class="white-mask" ref="whiteMask"></div>
+    <loading :show="loadingShow" text="海报生成中"></loading>
+  </div>
+</template>
+
+<script>
+import { Flexbox, FlexboxItem, XDialog, Loading } from "vux";
+import Html2canvas from "html2canvas";
+import QRCode from "qrcode";
+export default {
+  components: {
+    Flexbox,
+    FlexboxItem,
+    XDialog
+  },
+  data() {
+    return {
+      showPosterDialog: false,
+      loadingShow: false,
+      posterSrc: "",
+      qrocdeSrc: ""
+    };
+  },
+  created() {},
+  mounted() {
+    this.$nextTick(() => {
+      QRCode.toDataURL("http://www.google.com", {
+        width: 100,
+        margin: 2
+      })
+        .then(url => {
+          this.qrocdeSrc = url;
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    });
+  },
+  methods: {
+    createPoster() {
+      this.loadingShow = true;
+      this.$refs["whiteMask"].style.display = "block";
+      this.$refs["poster"].style.display = "block";
+      Html2canvas(this.$refs.poster, { useCORS: true }).then(canvas => {
+        this.posterSrc = canvas.toDataURL();
+        this.showPosterDialog = true;
+        this.loadingShow = false;
+        this.$refs["poster"].style.display = "none";
+        this.$refs["whiteMask"].style.display = "none";
+      });
+    }
+  }
+};
+</script>
+<style lang="less">
+.body {
+  background-color: #f7f7f7;
+}
+.vote-my-page {
+  position: relative;
+  min-height: 100vh;
+  .header-img {
+    height: 210px;
+  }
+  .arc-panel {
+    width: 100%;
+    height: 130px;
+    position: relative;
+    overflow: hidden;
+    &:after {
+      content: "";
+      width: 110%;
+      height: 95px;
+      position: absolute;
+      left: -5%;
+      top: 0;
+      z-index: -1;
+      border-radius: 0 0 50% 50%;
+      background: #4abdac;
+    }
+    .works-info {
+      position: absolute;
+      width: 90%;
+      height: 100px;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 3px 20px rgba(0, 0, 0, 0.1);
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      box-sizing: border-box;
+      color: #333333;
+      .number span {
+        color: #ee4b3e;
+        font-size: 20px;
+      }
+      .tip {
+        color: #909399;
+        font-size: 12px;
+      }
+      .share-btn {
+        width: 70px;
+        height: 30px;
+        color: #fff;
+        transition: 0s;
+        border: 0;
+        background-color: #ff6dc3;
+        background: linear-gradient(180deg, #ff6dc3 0, #ff2e61);
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="$top",endColorstr="$bottom",GradientType=0);
+        box-shadow: 0 10px 24px rgba(255, 72, 129, 0.4);
+        display: -ms-flexbox;
+        display: -moz-flex;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding-left: 20px;
+        border-radius: 12px;
+        font-size: 14px;
+      }
+    }
+  }
+  .vote-works-wrapper {
+    position: relative;
+    padding: 20px;
+    margin: 0 20px;
+    box-sizing: border-box;
+    box-shadow: 0 3px 20px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    border-radius: 8px;
+    .tips {
+      text-align: center;
+      font-size: 16px;
+      color: #333333;
+      margin-bottom: 10px;
+      .secondary {
+        color: #909399;
+        font-size: 12px;
+      }
+    }
+    .form-wrapper {
+      .form-row {
+        margin-bottom: 20px;
+        .cell-title {
+          font-size: 16px;
+          color: #333333;
+          span {
+            position: relative;
+            width: 100%;
+            text-align: justify;
+            float: left;
+            font-size: 16px;
+            font-weight: 700;
+            color: #333333;
+            height: 30px;
+            line-height: 30px;
+          }
+          span::after {
+            content: "";
+            display: inline-block;
+            width: 100%;
+          }
+        }
+        ::-webkit-input-placeholder {
+          line-height: 1.375em;
+        }
+        input {
+          outline: none;
+          color: #666;
+          font-size: 14px;
+          padding: 6px;
+          border-radius: 3px;
+          border: 1px solid #e3e3e3;
+          -webkit-appearance: none;
+          width: 100%;
+          box-sizing: border-box;
+        }
+        input:hover {
+          border: 1px solid #ff8a85;
+        }
+        input:focus {
+          border: 1px solid #ff8a85;
+          box-shadow: 0 0 0 2px rgba(255, 97, 142, 0.2);
+        }
+        textarea {
+          outline: none;
+          color: #666;
+          font-size: 16px;
+          padding: 6px;
+          border-radius: 3px;
+          border: 1px solid #e3e3e3;
+          -webkit-appearance: none;
+          width: 100%;
+          box-sizing: border-box;
+          height: 100px;
+        }
+        textarea:hover {
+          border: 1px solid #ff8a85;
+        }
+        textarea:focus {
+          border: 1px solid #ff8a85;
+          box-shadow: 0 0 0 2px rgba(255, 97, 142, 0.2);
+        }
+      }
+      .submit-btn {
+        padding: 12px 20px;
+        color: #fff;
+        transition: 0s;
+        border: 0;
+        background: #2bd0ff;
+        background: linear-gradient(180deg, #2bd0ff 0, #1c95fb);
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="$top",endColorstr="$bottom",GradientType=0);
+        box-shadow: 0 3px 5px rgba(28, 149, 251, 0.4);
+        width: 100%;
+        margin-bottom: 10px;
+        display: inline-block;
+        line-height: 1;
+        white-space: nowrap;
+        display: inline-block;
+        line-height: 1;
+        white-space: nowrap;
+        text-align: center;
+        box-sizing: border-box;
+        outline: 0;
+        margin: 0;
+        font-weight: 500;
+        font-size: 14px;
+        border-radius: 4px;
+      }
+    }
+  }
+  .vote-rules {
+    position: relative;
+    padding: 20px;
+    box-sizing: border-box;
+    .title {
+      color: #606266;
+      font-size: 14px;
+    }
+    .content {
+      font-size: 14px;
+      color: #606266;
+      text-align: justify;
+    }
+  }
+
+  .poster {
+    position: absolute;
+    top: 0;
+    display: none;
+    .wrapper {
+      position: relative;
+      .qrcode {
+        position: absolute;
+        bottom: 0;
+      }
+    }
+  }
+  .poster-dialog {
+    .tip {
+      color: #ffcccc;
+      font-size: 18px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    .image {
+      width: 80%;
+      margin: 0 auto 10px auto;
+    }
+  }
+  .white-mask {
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 1);
+    display: none;
+  }
+}
+</style>

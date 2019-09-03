@@ -49,7 +49,7 @@ export default {
 @import "~vux/src/styles/1px.less";
 @import "~vux/src/styles/close.less";
 @import url("assets/less/index.less");
-@import url("assets/css/animate.css");
+//@import url("assets/css/animate.css");
 body {
   background-color: #fbf9fe;
 }

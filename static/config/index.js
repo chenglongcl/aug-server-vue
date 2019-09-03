@@ -5,11 +5,12 @@
 (function () {
   window.SITE_CONFIG = {};
 
-  // api接口请求地址
+  // api接口请求地址生成环境
   window.SITE_CONFIG['baseUrl'] = 'http://tqkapitest.com/api';
-  window.SITE_CONFIG['devbaseUrl'] = 'http://tqkapitest.com/api';
   window.SITE_CONFIG['goUrl'] = 'http://funcgo.syiptv.com';
-  window.SITE_CONFIG['devgoUrl'] = 'http://localhost:8888';
+  // api接口请求地址开发环境
+  window.SITE_CONFIG['devbaseUrl'] = 'http://localhost:8007';
+  window.SITE_CONFIG['devgoUrl'] = 'http://localhost:8007';
   window.SITE_CONFIG['devProxyGoUrl'] = 'http://chenglongcl.natapp1.cc';
 
 

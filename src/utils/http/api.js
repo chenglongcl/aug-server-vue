@@ -7,17 +7,17 @@ const api = {
     params: httpRequest.adornParams(params)
   }),
   getGoWxSignatureproduction: (params = {}) => httpRequest({
-    url: httpRequest.adornUrl('/v1/wechat/jssdk/sign', false, 'goUrl'),
+    url: httpRequest.adornUrl('/v1/wechat/jssdk/sign', false),
     method: 'get',
     params: httpRequest.adornParams(params)
   }),
   getGoWxSignaturedevelopment: (params = {}) => httpRequest({
-    url: httpRequest.adornUrl('/v1/wechat/jssdk/sign', false, 'goUrl'),
+    url: httpRequest.adornUrl('/v1/wechat/jssdk/sign', false),
     method: 'get',
     params: httpRequest.adornParams(params)
   }),
   postMallOrder: (data = {}) => httpRequest({
-    url: httpRequest.adornUrl('/v1/mall/order', true, 'goUrl'),
+    url: httpRequest.adornUrl('/v1/mall/order', true),
     method: 'post',
     data: httpRequest.adornData(data)
   }),

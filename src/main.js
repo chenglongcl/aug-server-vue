@@ -38,7 +38,7 @@ Vue.config.productionTip = false
 Vue.use(httpRequest)
 //微信jsSign
 let wxJsN = new wxJs
-wxJsN.init(Vue, 'go')
+//wxJsN.init(Vue, 'go')
 
 /* eslint-disable no-new */
 new Vue({

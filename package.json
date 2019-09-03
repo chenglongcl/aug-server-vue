@@ -1,5 +1,5 @@
 {
-  "name": "vuxproject",
+  "name": "aug-server",
   "version": "1.0.0",
   "description": "A Vue.js project",
   "author": "chenglongcl <298115800@qq.com>",
@@ -11,9 +11,16 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "cssnano": "^4.1.10",
     "fastclick": "^1.0.6",
+    "html2canvas": "^1.0.0-alpha.12",
     "lodash": "^4.17.15",
     "mescroll.js": "^1.4.0",
+    "postcss-aspect-ratio-mini": "^1.0.1",
+    "postcss-cssnext": "^3.1.0",
+    "postcss-px-to-viewport": "^1.1.1",
+    "postcss-write-svg": "^3.0.1",
+    "qrcode": "^1.4.1",
     "svg-sprite-loader": "^3.7.3",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",
