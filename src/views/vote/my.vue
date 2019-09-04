@@ -8,7 +8,7 @@
         <flexbox>
           <flexbox-item :span="8">
             <div class="number">
-              推广人数: <span>125</span>
+              推广人数: <span>{{userInfo.subUserCount}}</span>
             </div>
             <div class="tip">生成海报,分享推广赢取奖励</div>
           </flexbox-item>
@@ -31,7 +31,7 @@
             <span>姓名</span>
           </flexbox-item>
           <flexbox-item>
-            <input type="text">
+            <input type="text" v-model="dataForm.title">
           </flexbox-item>
         </flexbox>
         <flexbox :gutter="10" class="form-row">
@@ -39,10 +39,11 @@
             <span>广告语</span>
           </flexbox-item>
           <flexbox-item>
-            <textarea></textarea>
+            <textarea v-model="dataForm.words" maxlength="30"></textarea>
           </flexbox-item>
         </flexbox>
-        <button class="submit-btn">立即提交</button>
+        <p v-if="validatorErrMsg!==''">{{validatorErrMsg}}</p>
+        <button class="submit-btn" @click="onSubmit">立即提交</button>
       </div>
     </div>
     <div class="vote-rules">
@@ -95,13 +96,26 @@
     <!--生成前过渡遮罩-->
     <div class="white-mask" ref="whiteMask"></div>
     <loading :show="loadingShow" text="海报生成中"></loading>
+    <!--无效活动url-->
+    <x-dialog v-model="showErrUrl" :hide-on-blur="false" :dialog-style="{'max-width': '100%', width: '100%', height: '50%', 'background-color': 'transparent'}">
+      <p style="color:#fff;text-align:center;">
+        <span style="font-size:30px;">无效报名链接</span>
+        <br />
+        <span style="font-size:30px;">请重新扫码进入</span>
+      </p>
+    </x-dialog>
   </div>
 </template>
 
 <script>
-import { Flexbox, FlexboxItem, XDialog, Loading } from "vux";
+import store from "@/store";
+import { mapState } from "vuex";
+import { Flexbox, FlexboxItem, XDialog, Loading, cookie } from "vux";
 import Html2canvas from "html2canvas";
 import QRCode from "qrcode";
+import AsyncValidator from "async-validator";
+import qs from "querystringify";
+import { parseURL } from "@/utils/common";
 export default {
   components: {
     Flexbox,
@@ -113,25 +127,112 @@ export default {
       showPosterDialog: false,
       loadingShow: false,
       posterSrc: "",
-      qrocdeSrc: ""
+      qrocdeSrc: "",
+      showErrUrl: false,
+      dataForm: {
+        voteID: this.$route.query.voteID,
+        voteWorksID: 0,
+        title: "",
+        words: "",
+        from: this.$route.query.from,
+        ancestor: this.$route.query.ancestor
+      },
+      userInfo: {
+        subUserCount: "-",
+        userID: ""
+      },
+      descriptor: {
+        title: {
+          type: "string",
+          required: true,
+          message: "请填写姓名"
+        },
+        words: [
+          {
+            type: "string",
+            required: true,
+            message: "请填写广告语"
+          },
+          {
+            min: 1,
+            max: 30,
+            message: "广告语长度1-30个字符"
+          }
+        ]
+      },
+      validatorErrMsg: ""
     };
   },
-  created() {},
-  mounted() {
-    this.$nextTick(() => {
-      QRCode.toDataURL("http://www.google.com", {
-        width: 100,
-        margin: 2
-      })
-        .then(url => {
-          this.qrocdeSrc = url;
-        })
-        .catch(err => {
-          console.error(err);
-        });
-    });
+  created() {
+    if (
+      !this.dataForm.voteID ||
+      !this.dataForm.from ||
+      !this.dataForm.ancestor
+    ) {
+      this.showErrUrl = true;
+      return;
+    }
+    if (!cookie.get("token")) {
+      store.commit("login/updateDialogLoginStatus", true);
+      return;
+    }
+    this.getData();
+  },
+  mounted() {},
+  computed: {
+    ...mapState({
+      loginSuccess: state => state.login.loginSuccess
+    })
   },
   methods: {
+    async getData() {
+      await this.getTbSubUserNodeCount();
+      await this.getTbVoteWorks();
+    },
+    getTbVote() {},
+    async getTbSubUserNodeCount() {
+      await this.$http.getTbSubUserNodeCount().then(({ data }) => {
+        if (data.code == 0) {
+          this.userInfo.subUserCount = data.data.count;
+          this.userInfo.userID = data.data.userID;
+          this.$nextTick(() => {
+            let urlSource = parseURL(window.location.href);
+            let createUrlParams = qs.stringify(
+              {
+                voteID: this.dataForm.voteID,
+                ancestor: this.userInfo.userID,
+                from: "signUp"
+              },
+              true
+            );
+            let url = `${urlSource.protocol}://${urlSource.host}/#${this.$route.path}${createUrlParams}`;
+            QRCode.toDataURL(url, {
+              width: 100,
+              margin: 2
+            })
+              .then(url => {
+                this.qrocdeSrc = url;
+              })
+              .catch(err => {
+                console.error(err);
+              });
+          });
+        }
+      });
+    },
+    async getTbVoteWorks() {
+      await this.$http
+        .getTbVoteWotks({
+          voteID: this.dataForm.voteID
+        })
+        .then(({ data }) => {
+          if (data.code == 0) {
+            this.dataForm.voteWorksID = data.data.voteWorksId;
+            this.dataForm.title = data.data.title;
+            this.dataForm.words = data.data.words;
+          }
+        });
+    },
     createPoster() {
       this.loadingShow = true;
       this.$refs["whiteMask"].style.display = "block";
@@ -143,6 +244,42 @@ export default {
         this.$refs["poster"].style.display = "none";
         this.$refs["whiteMask"].style.display = "none";
       });
+    },
+    onSubmit() {
+      let validator = new AsyncValidator(this.descriptor);
+      validator.validate(this.dataForm, (errors, fields) => {
+        if (errors) {
+          this.validatorErrMsg = errors[0].message;
+          return;
+        }
+        this.$http
+          .postOrPutTbVoteWorks({
+            voteID: parseInt(this.dataForm.voteID),
+            voteWorksID: this.dataForm.voteWorksID,
+            title: this.dataForm.title,
+            words: this.dataForm.words
+          })
+          .then(({ data }) => {
+            if (data.code == 0) {
+              let statusStr = this.dataForm.voteWorksID ? "修改" : "报名";
+              this.$vux.alert.show({
+                title: "消息",
+                content: `${statusStr}成功,请等待审核`,
+                onShow() {},
+                onHide() {}
+              });
+            } else {
+              this.$vux.toast.text(data.message, "top");
+            }
+          });
+      });
+    }
+  },
+  watch: {
+    loginSuccess(newValue, oldValue) {
+      if (newValue) {
+        this.getData();
+      }
     }
   }
 };
@@ -235,6 +372,10 @@ export default {
       }
     }
     .form-wrapper {
+      p {
+        font-size: 12px;
+        color: #ee4b3e;
+      }
       .form-row {
         margin-bottom: 20px;
         .cell-title {
@@ -363,6 +504,8 @@ export default {
       width: 80%;
       margin: 0 auto 10px auto;
     }
+  }
+  .login-dialog {
   }
   .white-mask {
     position: fixed;

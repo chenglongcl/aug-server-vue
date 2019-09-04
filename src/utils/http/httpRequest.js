@@ -2,6 +2,13 @@ import Vue from 'vue'
 import axios from 'axios'
 import qs from 'qs'
 import merge from 'lodash/merge'
+import {
+  cookie
+} from 'vux'
+import moment from 'moment'
+import {
+  clearLoginInfo
+} from '@/utils/common'
 
 const http = axios.create({
   headers: {
@@ -15,6 +22,7 @@ const http = axios.create({
  * 请求拦截
  */
 http.interceptors.request.use(config => {
+  config.headers['Authorization'] = `Bearer ${cookie.get('token')}` // 请求头带上token
   if (config.showProgress) {
     Vue.$vux.loading.show({
       text: '请稍候...'
@@ -30,16 +38,67 @@ http.interceptors.request.use(config => {
  */
 http.interceptors.response.use(response => {
   Vue.$vux.loading.hide()
-  if (response.data && response.data.code === 401) { // 401, token失效
-
-  }
   return response
 }, error => {
   Vue.$vux.loading.hide()
-  Vue.$vux.alert.show({
-    title: "提示",
-    content: "网络错误，请稍后重试"
-  });
+  if (error.response) {
+    switch (error.response.status) {
+      case 401:
+        let ReLogin = false
+        let config = error.config
+        let tokenValidTime = JSON.parse(cookie.get('token_valid_time'))
+        if (tokenValidTime !== null) {
+          let expiredAt = tokenValidTime["expired_at"]
+          let refreshExpiredAt = tokenValidTime["refresh_expired_at"]
+          let now = moment()
+          if (!config.isRetryRequest && now.isAfter(expiredAt) && now.isBefore(refreshExpiredAt)) {
+            const refresh = new Promise((resolve, reject) => {
+              //刷新token
+              Vue.http.getRefreshToken().then(({
+                data
+              }) => {
+                if (data && data.code === 0) {
+                  //修改flag
+                  config.isRetryRequest = true;
+                  //修改cookie token
+                  cookie.set("token", data.data.token);
+                  cookie.set(
+                    "token_valid_time",
+                    JSON.stringify({
+                      expired_at: data.data.expired_at,
+                      refresh_expired_at: data.data.refresh_expired_at
+                    })
+                  );
+                  //修改原请求的token
+                  config.headers.Authorization = `Bearer ${data.data.token}`;
+                  resolve(axios(config))
+                } else {
+                  ReLogin = true
+                }
+              }).catch(() => {
+                //失败重新登录
+                clearLoginInfo()
+                throw error;
+              })
+            })
+            return refresh;
+          } else {
+            ReLogin = true
+          }
+        } else {
+          ReLogin = true
+        }
+        if (ReLogin) {
+          clearLoginInfo()
+        }
+        break;
+      default:
+        Vue.$vux.alert.show({
+          title: "提示",
+          content: "网络错误，请稍后重试"
+        });
+    }
+  }
   return Promise.reject(error)
 })
 

@@ -1,4 +1,8 @@
 import Vue from "vue"
+import store from "@/store";
+import {
+  cookie
+} from 'vux'
 
 export function getUUID() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
@@ -41,4 +45,41 @@ export function chineseUnit(value, currency) {
     data = obj.symbol + obj.targ + obj.int + '.' + num + obj.times[times];
   }
   return data
+}
+
+/**
+ * 清除登录信息
+ */
+export function clearLoginInfo() {
+  cookie.delete('token')
+  cookie.delete('token_valid_time')
+  store.commit("login/updateDialogLoginStatus", true);
+}
+
+export function parseURL(url) {
+  var a = document.createElement('a');
+  a.href = url;
+  // var a = new URL(url);
+  return {
+    source: url,
+    protocol: a.protocol.replace(':', ''),
+    host: a.hostname,
+    port: a.port,
+    query: a.search,
+    params: (function () {
+      var params = {},
+        seg = a.search.replace(/^\?/, '').split('&'),
+        len = seg.length,
+        p;
+      for (var i = 0; i < len; i++) {
+        if (seg[i]) {
+          p = seg[i].split('=');
+          params[p[0]] = p[1];
+        }
+      }
+      return params;
+    })(),
+    hash: a.hash.replace('#', ''),
+    path: a.pathname.replace(/^([^\/])/, '/$1')
+  };
 }

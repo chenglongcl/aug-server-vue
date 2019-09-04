@@ -21,6 +21,42 @@ const api = {
     method: 'post',
     data: httpRequest.adornData(data)
   }),
+  //login
+  getRefreshToken: (params = {}) => httpRequest({
+    url: httpRequest.adornUrl('/refresh'),
+    method: 'get',
+    params: httpRequest.adornParams(params)
+  }),
+  //sms captcha
+  postSMSCaptcha: (data = {}, headers = {}) => httpRequest({
+    url: httpRequest.adornUrl('/v1/captcha/sendSMS', false),
+    method: 'post',
+    data: httpRequest.adornData(data),
+    headers: headers
+  }),
+  //tbUSer
+  postTbUserLoginWthSMS: (data = {}) => httpRequest({
+    url: httpRequest.adornUrl('/v1/loginWithSMS', true),
+    method: 'post',
+    data: httpRequest.adornData(data),
+  }),
+  //tbTree
+  getTbSubUserNodeCount: (params = {}) => httpRequest({
+    url: httpRequest.adornUrl('/v1/userTree/getTbSubUserNodeCount'),
+    method: 'get',
+    params: httpRequest.adornParams(params)
+  }),
+  //tbVoteWorks
+  getTbVoteWotks: (params = {}) => httpRequest({
+    url: httpRequest.adornUrl('/v1/tbVoteWorks/getWithUser'),
+    method: 'get',
+    params: httpRequest.adornParams(params)
+  }),
+  postOrPutTbVoteWorks: ((data = {}) => httpRequest({
+    url: httpRequest.adornUrl(`/v1/tbVoteWorks/${data.voteWorksID ? "updateFromServer" : "createFromServer"}`),
+    method: `${data.voteWorksID ? "put" : "post"}`,
+    data: httpRequest.adornData(data)
+  })),
 }
 
 // export default api

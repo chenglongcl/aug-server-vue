@@ -8,12 +8,15 @@
     <transition mode="out-in" :name="transitionName">
       <router-view v-if="!$route.meta.keepAlive" />
     </transition>
+    <!--弹出注册OR登录-->
+    <dialog-login></dialog-login>
   </div>
 </template>
 
 <script>
-import { Loading } from "vux";
+import { Loading, XDialog } from "vux";
 import { mapState } from "vuex";
+import DialogLogin from "@/components/common/dialogLogin";
 export default {
   name: "app",
   data() {
@@ -22,7 +25,8 @@ export default {
     };
   },
   components: {
-    Loading
+    Loading,
+    DialogLogin
   },
   computed: {
     ...mapState({
