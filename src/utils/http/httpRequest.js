@@ -58,16 +58,23 @@ http.interceptors.response.use(response => {
                 data
               }) => {
                 if (data && data.code === 0) {
+                  let expires = moment()
+                    .add(15, "days")
+                    .toDate();
                   //修改flag
                   config.isRetryRequest = true;
                   //修改cookie token
-                  cookie.set("token", data.data.token);
+                  cookie.set("token", data.data.token, {
+                    expires: expires
+                  });
                   cookie.set(
                     "token_valid_time",
                     JSON.stringify({
                       expired_at: data.data.expired_at,
                       refresh_expired_at: data.data.refresh_expired_at
-                    })
+                    }), {
+                      expires: expires
+                    }
                   );
                   //修改原请求的token
                   config.headers.Authorization = `Bearer ${data.data.token}`;

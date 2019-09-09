@@ -51,8 +51,8 @@ export function chineseUnit(value, currency) {
  * 清除登录信息
  */
 export function clearLoginInfo() {
-  cookie.delete('token')
-  cookie.delete('token_valid_time')
+  cookie.remove('token')
+  cookie.remove('token_valid_time')
   store.commit("login/updateDialogLoginStatus", true);
 }
 

@@ -6,11 +6,11 @@
   window.SITE_CONFIG = {};
 
   // api接口请求地址生成环境
-  window.SITE_CONFIG['baseUrl'] = 'http://tqkapitest.com/api';
-  window.SITE_CONFIG['goUrl'] = 'http://funcgo.syiptv.com';
+  window.SITE_CONFIG['baseUrl'] = 'http://augserverapi.chenglongcl.com';
+  window.SITE_CONFIG['goUrl'] = 'http://augserverapi.chenglongcl.com';
   // api接口请求地址开发环境
-  window.SITE_CONFIG['devbaseUrl'] = 'http://localhost:8007';
-  window.SITE_CONFIG['devgoUrl'] = 'http://localhost:8007';
+  window.SITE_CONFIG['devbaseUrl'] = 'http://augservergotest.com';
+  window.SITE_CONFIG['devgoUrl'] = 'http://augservergotest.com';
   window.SITE_CONFIG['devProxyGoUrl'] = 'http://chenglongcl.natapp1.cc';
 
 

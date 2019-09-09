@@ -46,9 +46,20 @@ const api = {
     method: 'get',
     params: httpRequest.adornParams(params)
   }),
+  //tbVote
+  getTbVote: (params = {}) => httpRequest({
+    url: httpRequest.adornUrl('/v1/tbVote/getFromServer'),
+    method: 'get',
+    params: httpRequest.adornParams(params)
+  }),
   //tbVoteWorks
   getTbVoteWotks: (params = {}) => httpRequest({
     url: httpRequest.adornUrl('/v1/tbVoteWorks/getWithUser'),
+    method: 'get',
+    params: httpRequest.adornParams(params)
+  }),
+  getTbVoteWotksList: (params = {}) => httpRequest({
+    url: httpRequest.adornUrl('/v1/tbVoteWorks/list', false),
     method: 'get',
     params: httpRequest.adornParams(params)
   }),

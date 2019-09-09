@@ -22,8 +22,8 @@
     </div>
     <div class="vote-works-wrapper">
       <div class="tips">
-        <p>填写信息</p>
-        <p class="secondary">征集时间:2019-09-09至2019-09-09</p>
+        <p>征集时间</p>
+        <p class="secondary">{{tbVote.signUpStartTime}}至{{tbVote.signUpEndTime}}</p>
       </div>
       <div class="form-wrapper">
         <flexbox :gutter="10" class="form-row">
@@ -48,38 +48,18 @@
     </div>
     <div class="vote-rules">
       <div class="title">活动说明 :</div>
-      <div class="content">
-        <p style="font-size: 14px;">
-          1、打开“十堰广播电视台”微信公众号或“十堰广电”新闻客户端 点击“房县黄酒”进入活动页面,按提示进行投票。
-        </p>
-        <p style="font-size: 14px;">
-          2、每个微信用户每天可投3票，每个客户端用户每天可投5票，投票对象不限。
-        </p>
-        <p style="font-size: 14px;">
-          3、网络投票前十名入围决赛。决赛阶段网民网络投票得分占比20%,专家评委评分占比80%。
-        </p>
-        <p style="font-size: 14px;">
-          4、严禁刷票行为，一经发现立即取消该作品参选资格。
-        </p>
-        <p style="font-size: 14px;">
-          5、网络投票结果将于投票结束后3天内通过十堰广播电视台微信公众号和十堰广电新闻客户端公布。
-        </p>
-        <p style="font-size: 14px;">
-          6、本活动最终解释权归房县黄酒产业发展中心所有。
-        </p>
-        <p style="margin-top:1rem">
-        </p>
+      <div class="content" v-html="tbVote.content">
       </div>
     </div>
     <!--other-->
     <!--海报DOM-->
     <div class="poster" ref="poster">
       <div class="wrapper">
-        <div class="bg">
-          <img src="https://aisyweixinpic.oss-cn-shanghai.aliyuncs.com/20171223/20190831poster.jpg" alt="">
-        </div>
         <div class="qrcode">
           <img :src="qrocdeSrc" alt="">
+        </div>
+        <div class="bg">
+          <img src="https://aisyweixinpic.oss-cn-shanghai.aliyuncs.com/20171223/20190831poster.jpg" alt="">
         </div>
       </div>
     </div>
@@ -116,6 +96,7 @@ import QRCode from "qrcode";
 import AsyncValidator from "async-validator";
 import qs from "querystringify";
 import { parseURL } from "@/utils/common";
+import { setTimeout } from "timers";
 export default {
   components: {
     Flexbox,
@@ -136,6 +117,11 @@ export default {
         words: "",
         from: this.$route.query.from,
         ancestor: this.$route.query.ancestor
+      },
+      tbVote: {
+        signUpStartTime: "--",
+        signUpEndTime: "--",
+        content: ""
       },
       userInfo: {
         subUserCount: "-",
@@ -172,6 +158,7 @@ export default {
       this.showErrUrl = true;
       return;
     }
+    this.getTbVote();
     if (!cookie.get("token")) {
       store.commit("login/updateDialogLoginStatus", true);
       return;
@@ -189,7 +176,20 @@ export default {
       await this.getTbSubUserNodeCount();
       await this.getTbVoteWorks();
     },
-    getTbVote() {},
+    getTbVote() {
+      this.$http
+        .getTbVote({
+          id: this.dataForm.voteID
+        })
+        .then(({ data }) => {
+          if (data.code == 0) {
+            document.title = data.data.title;
+            this.tbVote.signUpStartTime = data.data.signUpStartTime;
+            this.tbVote.signUpEndTime = data.data.signUpEndTime;
+            this.tbVote.content = data.data.content;
+          }
+        });
+    },
     async getTbSubUserNodeCount() {
       await this.$http.getTbSubUserNodeCount().then(({ data }) => {
         if (data.code == 0) {
@@ -237,13 +237,15 @@ export default {
       this.loadingShow = true;
       this.$refs["whiteMask"].style.display = "block";
       this.$refs["poster"].style.display = "block";
-      Html2canvas(this.$refs.poster, { useCORS: true }).then(canvas => {
-        this.posterSrc = canvas.toDataURL();
-        this.showPosterDialog = true;
-        this.loadingShow = false;
-        this.$refs["poster"].style.display = "none";
-        this.$refs["whiteMask"].style.display = "none";
-      });
+      Html2canvas(this.$refs.poster, { allowTaint: false, useCORS: true }).then(
+        canvas => {
+          this.posterSrc = canvas.toDataURL("image/png");
+          this.showPosterDialog = true;
+          this.loadingShow = false;
+          this.$refs["poster"].style.display = "none";
+          this.$refs["whiteMask"].style.display = "none";
+        }
+      );
     },
     onSubmit() {
       let validator = new AsyncValidator(this.descriptor);
@@ -287,6 +289,9 @@ export default {
 <style lang="less">
 .body {
   background-color: #f7f7f7;
+}
+.weui-mask {
+  background: rgba(0, 0, 0, 0.9);
 }
 .vote-my-page {
   position: relative;
@@ -368,7 +373,7 @@ export default {
       margin-bottom: 10px;
       .secondary {
         color: #909399;
-        font-size: 12px;
+        font-size: 14px;
       }
     }
     .form-wrapper {
@@ -399,7 +404,7 @@ export default {
           }
         }
         ::-webkit-input-placeholder {
-          line-height: 1.375em;
+          line-height: 1.5;
         }
         input {
           outline: none;
@@ -487,9 +492,18 @@ export default {
     display: none;
     .wrapper {
       position: relative;
+      width: 100%;
+      height: 590px;
       .qrcode {
         position: absolute;
         bottom: 0;
+        left: 0;
+        width: 100px;
+        height: 100px;
+        img {
+          width: 100%;
+          height: 100%;
+        }
       }
     }
   }

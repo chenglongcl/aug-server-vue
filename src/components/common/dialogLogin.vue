@@ -6,7 +6,7 @@
       </h1>
       <div class="cell">
         <input type="text" placeholder="请输入手机号" v-model="dataForm.mobile" maxlength="11" style="width:63%">
-        <time-count-downer class="time-count-btn" ref="timeCountDowner" :mobile="dataForm.mobile" :second="10" text-value="${second}s"></time-count-downer>
+        <time-count-downer class="time-count-btn" ref="timeCountDowner" :mobile="dataForm.mobile" :second="60" text-value="${second}s"></time-count-downer>
       </div>
       <div class="cell">
         <input type="text" placeholder="请输入短信验证码" required v-model="dataForm.captcha" style="width:100%">
@@ -25,6 +25,7 @@ import { XDialog, cookie } from "vux";
 import { mapState } from "vuex";
 import TimeCountDowner from "@/components/common/timeCountDowner";
 import AsyncValidator from "async-validator";
+import moment from "moment";
 export default {
   name: "dialog-login",
   components: {
@@ -79,14 +80,22 @@ export default {
           })
           .then(({ data }) => {
             if (data.code == 0) {
-              cookie.set("token", data.data.token);
-              cookie.set(
-                "token_valid_time",
-                JSON.stringify({
-                  expired_at: data.data.expired_at,
-                  refresh_expired_at: data.data.refresh_expired_at
-                })
-              );
+              let expires = moment()
+                .add(15, "days")
+                .toDate();
+              cookie.set("token", data.data.token, {
+                expires: expires
+              }),
+                cookie.set(
+                  "token_valid_time",
+                  JSON.stringify({
+                    expired_at: data.data.expired_at,
+                    refresh_expired_at: data.data.refresh_expired_at
+                  }),
+                  {
+                    expires: expires
+                  }
+                );
               this.$vux.toast.text("登录成功", "top");
               store.commit("login/updateLoginSuccess", true);
               store.commit("login/updateDialogLoginStatus", false);
@@ -123,7 +132,7 @@ export default {
     }
   }
   ::-webkit-input-placeholder {
-    line-height: 30px;
+    line-height: 1.5;
   }
   input {
     outline: none;
