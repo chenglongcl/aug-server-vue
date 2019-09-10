@@ -1,5 +1,5 @@
 <template>
-  <x-dialog v-model="dialogLogin" :hide-on-blur="false" :dialog-style="{'max-width': '100%', width: '100%', height: '70%', 'background-color': 'transparent'}" class="login-dialog">
+  <x-dialog v-model="dialogLogin" :hide-on-blur="false" :dialog-style="{'max-width': '100%', width: '100%', height: '70%', 'background-color': 'transparent'}" class="login-dialog" dialog-transition="fade-own">
     <div class="login-wrapper">
       <h1 class="title">
         登录
@@ -110,6 +110,13 @@ export default {
 </script>
 
 <style lang="less">
+.fade-own-enter-active,
+.fade-own-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-own-enter, .fade-own-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
 .login-wrapper {
   position: relative;
   width: 90%;
