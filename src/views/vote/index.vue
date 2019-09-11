@@ -1,7 +1,7 @@
 <template>
   <div class="vote-index-page">
     <div class="header">
-      <img src="https://aisyweixinpic.oss-cn-shanghai.aliyuncs.com/20171223/index-header.jpg" alt="">
+      <img src="http://img.zahanna.vip/20190911/index-header.jpg" alt="">
     </div>
     <div class="nav-wrapper">
       <flexbox :gutter="0">
@@ -345,6 +345,9 @@ export default {
       min-height: 530px;
       p {
         line-height: 2;
+        img {
+          margin: 10px 0;
+        }
       }
     }
     .vote-wrapper {
@@ -387,8 +390,6 @@ export default {
       }
       .statis-panel {
         background-color: #ffffff;
-        border-top: 1px solid #e5e5e5;
-        border-bottom: 1px solid #e5e5e5;
         padding: 5px 0;
         .left-block,
         .right-block {
@@ -398,6 +399,9 @@ export default {
           .b {
             color: #f37a89;
           }
+        }
+        .vux-1px-r:after {
+          border-right: 1px solid #dcdfe6;
         }
       }
       .btn-tabs {

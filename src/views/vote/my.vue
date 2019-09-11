@@ -1,7 +1,7 @@
 <template>
   <div class="vote-my-page">
     <div class="header-img">
-      <img src="https://aisyweixinpic.oss-cn-shanghai.aliyuncs.com/20171223/augadmin/fake.png" alt="">
+      <img src="http://img.zahanna.vip/20190911/signin-header.jpg" alt="">
     </div>
     <div class="arc-panel">
       <div class="works-info">
@@ -59,7 +59,7 @@
           <img :src="qrocdeSrc" alt="">
         </div>
         <div class="bg">
-          <img src="https://aisyweixinpic.oss-cn-shanghai.aliyuncs.com/20171223/20190831poster.jpg" alt="">
+          <img src="https://zahanna.oss-cn-shenzhen.aliyuncs.com/20190911/poster.jpg" alt="">
         </div>
       </div>
     </div>
@@ -313,7 +313,7 @@ export default {
       top: 0;
       z-index: -1;
       border-radius: 0 0 50% 50%;
-      background: #4abdac;
+      background: #3818a1;
     }
     .works-info {
       position: absolute;
@@ -483,6 +483,12 @@ export default {
       font-size: 14px;
       color: #606266;
       text-align: justify;
+      p {
+        line-height: 2;
+        img {
+          margin: 10px 0;
+        }
+      }
     }
   }
 
@@ -492,14 +498,15 @@ export default {
     display: none;
     .wrapper {
       position: relative;
-      width: 100%;
+      width: 375px;
       height: 590px;
       .qrcode {
         position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100px;
-        height: 100px;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 80px;
         img {
           width: 100%;
           height: 100%;
