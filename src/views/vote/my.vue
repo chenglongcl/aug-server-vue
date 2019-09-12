@@ -61,6 +61,9 @@
         <div class="bg">
           <img src="https://zahanna.oss-cn-shenzhen.aliyuncs.com/20190911/poster.jpg" alt="">
         </div>
+        <div class="mobile">
+          {{userInfo.mobile}}
+        </div>
       </div>
     </div>
     <!--生成结果-->
@@ -125,7 +128,8 @@ export default {
       },
       userInfo: {
         subUserCount: "-",
-        userID: ""
+        userID: "",
+        mobile: ""
       },
       descriptor: {
         title: {
@@ -195,6 +199,7 @@ export default {
         if (data.code == 0) {
           this.userInfo.subUserCount = data.data.count;
           this.userInfo.userID = data.data.userID;
+          this.userInfo.mobile = data.data.mobile;
           this.$nextTick(() => {
             let urlSource = parseURL(window.location.href);
             let createUrlParams = qs.stringify(
@@ -511,6 +516,14 @@ export default {
           width: 100%;
           height: 100%;
         }
+      }
+      .mobile {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #ffffff;
+        font-weight: bold;
       }
     }
   }

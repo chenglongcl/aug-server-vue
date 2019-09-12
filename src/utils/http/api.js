@@ -35,6 +35,11 @@ const api = {
     headers: headers
   }),
   //tbUSer
+  getTbUserMy: (params = {}) => httpRequest({
+    url: httpRequest.adornUrl('/v1/tbUser/myFromServer'),
+    method: 'get',
+    params: httpRequest.adornParams(params)
+  }),
   postTbUserLoginWthSMS: (data = {}) => httpRequest({
     url: httpRequest.adornUrl('/v1/loginWithSMS', true),
     method: 'post',

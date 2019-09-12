@@ -1,5 +1,5 @@
 <template>
-  <x-dialog v-model="dialogLogin" :hide-on-blur="false" :dialog-style="{'max-width': '100%', width: '100%', height: '70%', 'background-color': 'transparent'}" class="login-dialog" dialog-transition="fade-own">
+  <x-dialog v-model="dialogLogin" :hide-on-blur="false" :dialog-style="{'max-width': '100%', width: '100%', height: '100%', 'background-color': 'transparent'}" class="login-dialog" dialog-transition="fade-own">
     <div class="login-wrapper">
       <h1 class="title">
         登录
@@ -120,7 +120,7 @@ export default {
 .login-wrapper {
   position: relative;
   width: 90%;
-  margin: 0 auto;
+  margin: 80px auto 0 auto;
   background-color: #ffffff;
   box-sizing: border-box;
   padding: 20px;

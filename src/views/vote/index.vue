@@ -1,6 +1,6 @@
 <template>
   <div class="vote-index-page">
-    <div class="header">
+    <div class="header" v-show="currNavIndex !== 2">
       <img src="http://img.zahanna.vip/20190911/index-header.jpg" alt="">
     </div>
     <div class="nav-wrapper">
@@ -120,6 +120,8 @@
         <div class="vote-rule" v-if="this.currBtnTabsIndex === 2" v-html="tbVote.voteRules">
         </div>
       </div>
+      <div class="reward-content" v-html="tbVote.rewardContent" v-if="this.currNavIndex === 3">
+      </div>
     </div>
     <x-dialog v-model="showDialogSubscribe" :hide-on-blur="false" :dialog-style="{'max-width': '100%', width: '100%', height: '50%', 'background-color': 'transparent'}" dialog-transition="fade-own" class="subscribe-dialog">
       <p class="tip">
@@ -148,6 +150,7 @@ import {
   XDialog,
   cookie
 } from "vux";
+import moment from "moment";
 export default {
   components: {
     Flexbox,
@@ -184,6 +187,7 @@ export default {
         delay: 500, // 列表滚动的过程中每500ms检查一次图片是否在可视区域,如果在可视区域则加载图片
         offset: 200 // 超出可视区域200px的图片仍可触发懒加载,目的是提前加载部分图片
       },
+      isBounce: true,
       onScroll: (mescroll, y, isUp) => {}
     };
     return {
@@ -300,6 +304,24 @@ export default {
       this.mescroll.resetUpScroll();
     },
     onNavItemClick(index) {
+      if (index === 2) {
+        if (
+          !moment().isBetween(
+            this.tbVote.activityStartTime,
+            this.tbVote.activityEndTime
+          )
+        ) {
+          this.$vux.alert.show({
+            title: "提示",
+            content: `投票开始时间为${this.tbVote.activityStartTime}至${this.tbVote.activityEndTime}`,
+            dialogTransition: "fade-own"
+          });
+          index = this.currNavIndex;
+        }
+        this.mescroll.setBounce(false);
+      } else {
+        this.mescroll.setBounce(true);
+      }
       this.currNavIndex = index;
     },
     onBtnTabsItemClick(index) {
@@ -335,7 +357,8 @@ export default {
   }
   .main {
     .content,
-    .reward-rules {
+    .reward-rules,
+    .reward-content {
       background-color: #ffffff;
       position: relative;
       padding: 20px;
@@ -423,7 +446,7 @@ export default {
         padding: 10px 0;
         .mescroll {
           position: fixed;
-          top: 435px;
+          top: 215px;
           bottom: 0;
           height: auto;
         }
