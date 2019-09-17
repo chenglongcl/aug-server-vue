@@ -23,9 +23,9 @@
       </flexbox>
     </div>
     <div class="main">
-      <div class="content" v-html="tbVote.content" v-if="this.currNavIndex === 0">
+      <div class="content" v-html="tbVote.content" v-show="this.currNavIndex === 0">
       </div>
-      <div class="reward-rules" v-html="tbVote.rewardRules" v-if="this.currNavIndex === 1">
+      <div class="reward-rules" v-html="tbVote.rewardRules" v-show="this.currNavIndex === 1">
       </div>
       <div class="vote-wrapper" v-show="this.currNavIndex === 2">
         <div class="search-panel">
@@ -97,7 +97,7 @@
             </div>
           </mescroll-vue>
         </div>
-        <div class="rank-table" v-if="this.currBtnTabsIndex === 1">
+        <div class="rank-table" v-show="this.currBtnTabsIndex === 1">
           <x-table :cell-bordered="false" :content-bordered="false" style="background-color:#fff;">
             <thead>
               <tr style="background-color: #F7F7F7">
@@ -117,10 +117,10 @@
             </tbody>
           </x-table>
         </div>
-        <div class="vote-rule" v-if="this.currBtnTabsIndex === 2" v-html="tbVote.voteRules">
+        <div class="vote-rule" v-show="this.currBtnTabsIndex === 2" v-html="tbVote.voteRules">
         </div>
       </div>
-      <div class="reward-content" v-html="tbVote.rewardContent" v-if="this.currNavIndex === 3">
+      <div class="reward-content" v-html="tbVote.rewardContent" v-show="this.currNavIndex === 3">
       </div>
     </div>
     <x-dialog v-model="showDialogSubscribe" :hide-on-blur="false" :dialog-style="{'max-width': '100%', width: '100%', height: '50%', 'background-color': 'transparent'}" dialog-transition="fade-own" class="subscribe-dialog">
@@ -128,7 +128,7 @@
         长按二维码关注我们!
       </p>
       <p class="subscribe-qrcode">
-        <img src="https://aisyweixinpic.oss-cn-shanghai.aliyuncs.com/20171223/testqcord.png" alt="">
+        <img src="https://aisyweixinpic.oss-cn-shanghai.aliyuncs.com/20171223/qrcode-1.jpg" alt="">
       </p>
       <p class="close" @click="showDialogSubscribe = false">
         <x-icon type="ios-close-outline" style="fill:#fff;"></x-icon>
@@ -537,7 +537,7 @@ export default {
       font-weight: bold;
     }
     .subscribe-qrcode {
-      width: 70%;
+      width: 90%;
       margin: 0 auto;
       box-shadow: 0 3px 20px rgba(255, 255, 255, 0.1);
     }
