@@ -134,6 +134,15 @@
         <x-icon type="ios-close-outline" style="fill:#fff;"></x-icon>
       </p>
     </x-dialog>
+    <alert v-model="voteSTipsShow" title="提示" dialog-transition="fade-own">
+      <p>距离比赛时间还有</p>
+      <clocker :time="tbVote.activityStartTime">
+        <span style="color:#F56C6C">%D 天</span>
+        <span style="color:#67C23A">%H 小时</span>
+        <span style="color:#409EFF">%M 分 %S 秒</span>
+      </clocker>
+      <p>目前是作品征集时间,欢迎参赛</p>
+    </alert>
   </div>
 </template>
 <script>
@@ -148,6 +157,8 @@ import {
   XButton,
   XTable,
   XDialog,
+  Clocker,
+  Alert,
   cookie
 } from "vux";
 import moment from "moment";
@@ -160,6 +171,8 @@ export default {
     XButton,
     XTable,
     XDialog,
+    Clocker,
+    Alert,
     MescrollVue
   },
   data() {
@@ -196,12 +209,13 @@ export default {
       statis: {},
       keyword: "",
       rank: [],
-      mescroll: null, // mescroll实例对象
+      mescroll: null, // mescroll实例voteSTipsShow对象
       mescrollUp: mescrollUp,
       dataList: [],
       currNavIndex: 0,
       currBtnTabsIndex: 0,
-      showDialogSubscribe: false
+      showDialogSubscribe: false,
+      voteSTipsShow: false
     };
   },
   created() {
@@ -305,18 +319,21 @@ export default {
     },
     onNavItemClick(index) {
       if (index === 2) {
-        if (
-          !moment().isBetween(
-            this.tbVote.activityStartTime,
-            this.tbVote.activityEndTime
-          )
-        ) {
-          this.$vux.alert.show({
-            title: "提示",
-            content: `投票开始时间为${this.tbVote.activityStartTime}至${this.tbVote.activityEndTime}`,
-            dialogTransition: "fade-own"
-          });
-          index = this.currNavIndex;
+        switch (true) {
+          case moment().isBefore(this.tbVote.activityStartTime):
+            this.voteSTipsShow = true;
+            index = this.currNavIndex;
+            break;
+          case moment().isAfter(this.tbVote.activityEndTime):
+            this.$vux.alert.show({
+              title: "提示",
+              content: "比赛已经结束,谢谢您的关注!",
+              dialogTransition: "fade-own"
+            });
+            index = this.currNavIndex;
+            break;
+          default:
+            break;
         }
         this.mescroll.setBounce(false);
       } else {

@@ -6,8 +6,8 @@
   window.SITE_CONFIG = {};
 
   // api接口请求地址生成环境
-  window.SITE_CONFIG['baseUrl'] = 'http://api2.zahanna.vip:81/';
-  window.SITE_CONFIG['goUrl'] = 'http://api2.zahanna.vip:81/';
+  window.SITE_CONFIG['baseUrl'] = 'http://api2.zahanna.vip:81';
+  window.SITE_CONFIG['goUrl'] = 'http://api2.zahanna.vip:81';
   // api接口请求地址开发环境
   window.SITE_CONFIG['devbaseUrl'] = 'http://augservergotest.com';
   window.SITE_CONFIG['devgoUrl'] = 'http://augservergotest.com';

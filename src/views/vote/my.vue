@@ -10,7 +10,7 @@
             <div class="number">
               推广人数: <span>{{userInfo.subUserCount}}</span>
             </div>
-            <div class="tip">生成海报,分享推广赢取奖励</div>
+            <div class="tip">生成推荐海报,被推荐者中奖,<br />你可以额外获得最高25万的奖励</div>
           </flexbox-item>
           <flexbox-item :span="4">
             <span class="share-btn" @click="createPoster">
@@ -23,7 +23,7 @@
     <div class="vote-works-wrapper">
       <div class="tips">
         <p>征集时间</p>
-        <p class="secondary">{{tbVote.signUpStartTime}}至{{tbVote.signUpEndTime}}</p>
+        <p class="secondary">{{formatSignUpStartTime}} 至 {{formatSignUpEndTime}}</p>
       </div>
       <div class="form-wrapper">
         <flexbox :gutter="10" class="form-row">
@@ -31,7 +31,7 @@
             <span>姓名</span>
           </flexbox-item>
           <flexbox-item>
-            <input type="text" v-model="dataForm.title">
+            <input type="text" placeholder="敬请使用实名提交" v-model="dataForm.title">
           </flexbox-item>
         </flexbox>
         <flexbox :gutter="10" class="form-row">
@@ -39,7 +39,7 @@
             <span>广告语</span>
           </flexbox-item>
           <flexbox-item>
-            <textarea v-model="dataForm.words" maxlength="30"></textarea>
+            <textarea placeholder="比赛前可修改,但是会改变作品提交时间" v-model="dataForm.words" maxlength="30"></textarea>
           </flexbox-item>
         </flexbox>
         <p v-if="validatorErrMsg!==''">{{validatorErrMsg}}</p>
@@ -47,7 +47,7 @@
       </div>
     </div>
     <div class="vote-rules">
-      <div class="title">活动说明 :</div>
+      <div class="title">活动介绍 :</div>
       <div class="content" v-html="tbVote.content">
       </div>
     </div>
@@ -100,6 +100,7 @@ import AsyncValidator from "async-validator";
 import qs from "querystringify";
 import { parseURL } from "@/utils/common";
 import { setTimeout } from "timers";
+import moment from "moment";
 export default {
   components: {
     Flexbox,
@@ -173,7 +174,17 @@ export default {
   computed: {
     ...mapState({
       loginSuccess: state => state.login.loginSuccess
-    })
+    }),
+    formatSignUpStartTime() {
+      if (this.tbVote.signUpStartTime !== "--") {
+        return moment(this.tbVote.signUpStartTime).format("YYYY-MM-DD");
+      }
+    },
+    formatSignUpEndTime() {
+      if (this.tbVote.signUpEndTime !== "--") {
+        return moment(this.tbVote.signUpEndTime).format("YYYY-MM-DD");
+      }
+    }
   },
   methods: {
     async getData() {
@@ -410,6 +421,8 @@ export default {
         }
         ::-webkit-input-placeholder {
           line-height: 1.5;
+          color: #c0c4cc;
+          font-size: 14px;
         }
         input {
           outline: none;
@@ -432,7 +445,7 @@ export default {
         textarea {
           outline: none;
           color: #666;
-          font-size: 16px;
+          font-size: 14px;
           padding: 6px;
           border-radius: 3px;
           border: 1px solid #e3e3e3;
