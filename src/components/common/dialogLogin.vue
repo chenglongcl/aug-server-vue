@@ -47,7 +47,7 @@ export default {
       descriptor: {
         mobile(rule, value, callback, source, options) {
           let errors = [];
-          if (!/^1(3|4|5|7|8)\d{9}$/.test(value)) {
+          if (!/^1(3|4|5|6|7|8|9)\d{9}$/.test(value)) {
             errors.push({ message: "请填写正确手机号", field: rule.field });
           }
           return errors;

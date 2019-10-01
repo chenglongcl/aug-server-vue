@@ -18,32 +18,45 @@
             </span>
           </flexbox-item>
         </flexbox>
+        <div class="link">
+          <a href="http://vip.zahanna.vip/">
+            <icon-svg name="right-ins" class="svg"></icon-svg>加盟“齿哈尼”并参与活动，将可以获得更多惊喜
+          </a>
+        </div>
       </div>
     </div>
     <div class="vote-works-wrapper">
-      <div class="tips">
-        <p>征集时间</p>
-        <p class="secondary">{{formatSignUpStartTime}} 至 {{formatSignUpEndTime}}</p>
-      </div>
-      <div class="form-wrapper">
-        <flexbox :gutter="10" class="form-row">
-          <flexbox-item :span="2" class="cell-title">
-            <span>姓名</span>
-          </flexbox-item>
-          <flexbox-item>
-            <input type="text" placeholder="敬请使用实名提交" v-model="dataForm.title">
-          </flexbox-item>
-        </flexbox>
-        <flexbox :gutter="10" class="form-row">
-          <flexbox-item :span="2" class="cell-title">
-            <span>广告语</span>
-          </flexbox-item>
-          <flexbox-item>
-            <textarea placeholder="比赛前可修改,但是会改变作品提交时间" v-model="dataForm.words" maxlength="30"></textarea>
-          </flexbox-item>
-        </flexbox>
+      <transition name="fade-own">
+        <div v-show="showForm">
+          <div class="tips">
+            <p>征集时间</p>
+            <p class="secondary">{{formatSignUpStartTime}} 至 {{formatSignUpEndTime}}</p>
+          </div>
+          <div class="form-wrapper">
+            <flexbox :gutter="10" class="form-row">
+              <flexbox-item :span="2" class="cell-title">
+                <span>姓名</span>
+              </flexbox-item>
+              <flexbox-item>
+                <input type="text" placeholder="敬请使用实名提交" v-model="dataForm.title">
+              </flexbox-item>
+            </flexbox>
+            <flexbox :gutter="10" class="form-row">
+              <flexbox-item :span="2" class="cell-title">
+                <span>广告语</span>
+              </flexbox-item>
+              <flexbox-item>
+                <textarea placeholder="比赛前可修改,但是会改变作品提交时间" v-model="dataForm.words" maxlength="30"></textarea>
+              </flexbox-item>
+            </flexbox>
+          </div>
+        </div>
+      </transition>
+
+      <div class="btns">
         <p v-if="validatorErrMsg!==''">{{validatorErrMsg}}</p>
-        <button class="submit-btn" @click="onSubmit">立即提交</button>
+        <button class="submit-btn" @click="onSubmit" v-if="showForm">立即提交</button>
+        <button class="submit-btn" @click="entyGame" v-if="!showForm">我要参赛</button>
       </div>
     </div>
     <div class="vote-rules">
@@ -62,7 +75,7 @@
           <img src="https://zahanna.oss-cn-shenzhen.aliyuncs.com/20190911/poster.jpg" alt="">
         </div>
         <div class="mobile">
-          {{userInfo.mobile}}
+          {{hideMobile}}
         </div>
       </div>
     </div>
@@ -114,6 +127,7 @@ export default {
       posterSrc: "",
       qrocdeSrc: "",
       showErrUrl: false,
+      showForm: false,
       dataForm: {
         voteID: this.$route.query.voteID,
         voteWorksID: 0,
@@ -184,6 +198,12 @@ export default {
       if (this.tbVote.signUpEndTime !== "--") {
         return moment(this.tbVote.signUpEndTime).format("YYYY-MM-DD");
       }
+    },
+    hideMobile() {
+      if (this.userInfo.mobile) {
+        let mobile = "" + this.userInfo.mobile;
+        return mobile.substr(0, 3) + "****" + mobile.substr(7);
+      }
     }
   },
   methods: {
@@ -223,7 +243,7 @@ export default {
             );
             let url = `${urlSource.protocol}://${urlSource.host}/#${this.$route.path}${createUrlParams}`;
             QRCode.toDataURL(url, {
-              width: 100,
+              width: 200,
               margin: 2
             })
               .then(url => {
@@ -262,6 +282,9 @@ export default {
           this.$refs["whiteMask"].style.display = "none";
         }
       );
+    },
+    entyGame() {
+      this.showForm = true;
     },
     onSubmit() {
       let validator = new AsyncValidator(this.descriptor);
@@ -303,6 +326,10 @@ export default {
 };
 </script>
 <style lang="less">
+.fade-own-enter-active,
+.fade-own-leave-active {
+  transition: opacity 0.5s;
+}
 .body {
   background-color: #f7f7f7;
 }
@@ -317,7 +344,7 @@ export default {
   }
   .arc-panel {
     width: 100%;
-    height: 130px;
+    height: 160px;
     position: relative;
     overflow: hidden;
     &:after {
@@ -334,13 +361,13 @@ export default {
     .works-info {
       position: absolute;
       width: 90%;
-      height: 100px;
+      height: 130px;
       top: 10px;
       left: 50%;
       transform: translateX(-50%);
       box-shadow: 0 3px 20px rgba(0, 0, 0, 0.1);
       background-color: #ffffff;
-      border-radius: 8px;
+      border-radius: 5px;
       padding: 20px;
       box-sizing: border-box;
       color: #333333;
@@ -372,6 +399,17 @@ export default {
         border-radius: 12px;
         font-size: 14px;
       }
+      .link {
+        font-size: 12px;
+        margin-top: 10px;
+        a {
+          color: #e6a23c;
+        }
+        .svg {
+          font-size: 14px;
+          vertical-align: sub;
+        }
+      }
     }
   }
   .vote-works-wrapper {
@@ -381,7 +419,7 @@ export default {
     box-sizing: border-box;
     box-shadow: 0 3px 20px rgba(0, 0, 0, 0.1);
     background-color: #ffffff;
-    border-radius: 8px;
+    border-radius: 5px;
     .tips {
       text-align: center;
       font-size: 16px;
@@ -393,10 +431,7 @@ export default {
       }
     }
     .form-wrapper {
-      p {
-        font-size: 12px;
-        color: #ee4b3e;
-      }
+      overflow: hidden;
       .form-row {
         margin-bottom: 20px;
         .cell-title {
@@ -453,6 +488,7 @@ export default {
           width: 100%;
           box-sizing: border-box;
           height: 100px;
+          text-align: justify;
         }
         textarea:hover {
           border: 1px solid #ff8a85;
@@ -461,6 +497,12 @@ export default {
           border: 1px solid #ff8a85;
           box-shadow: 0 0 0 2px rgba(255, 97, 142, 0.2);
         }
+      }
+    }
+    .btns {
+      p {
+        font-size: 12px;
+        color: #ee4b3e;
       }
       .submit-btn {
         padding: 12px 20px;
@@ -520,11 +562,11 @@ export default {
       height: 590px;
       .qrcode {
         position: absolute;
-        bottom: 100px;
+        bottom: 70px;
         left: 50%;
         transform: translateX(-50%);
-        width: 80px;
-        height: 80px;
+        width: 130px;
+        height: 130px;
         img {
           width: 100%;
           height: 100%;
