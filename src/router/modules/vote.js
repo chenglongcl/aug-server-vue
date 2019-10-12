@@ -1,5 +1,6 @@
 const Index = () => import('@/views/vote/index')
 const My = () => import('@/views/vote/my')
+const TeamRec = () => import('@/views/vote/teamRec')
 
 
 export default [{
@@ -16,4 +17,11 @@ export default [{
     index: 2,
   },
   component: My,
+}, {
+  path: '/vote/teamRec',
+  name: 'voteTeamRec',
+  meta: {
+    index: 2,
+  },
+  component: TeamRec,
 }]

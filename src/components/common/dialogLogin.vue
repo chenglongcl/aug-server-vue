@@ -1,6 +1,6 @@
 <template>
-  <x-dialog v-model="dialogLogin" :hide-on-blur="false" :dialog-style="{'max-width': '100%', width: '100%', height: '100%', 'background-color': 'transparent'}" class="login-dialog" dialog-transition="fade-own">
-    <div class="login-wrapper">
+  <x-dialog v-model="dialogLogin" :hide-on-blur="false" :dialog-style="{'max-width': '100%', width: '100%', height: '100%', 'background-color': 'transparent'}" class="login-dialog" dialog-transition="fade-own" @on-show="init()">
+    <div class="login-wrapper" ref="loginWrapper">
       <h1 class="title">
         登录
       </h1>
@@ -42,7 +42,8 @@ export default {
       dataForm: {
         mobile: "",
         captcha: "",
-        ancestor: ""
+        ancestor: "",
+        from: ""
       },
       descriptor: {
         mobile(rule, value, callback, source, options) {
@@ -62,6 +63,12 @@ export default {
     };
   },
   methods: {
+    init() {
+      this.dataForm.ancestor = this.$route.query.ancestor
+        ? parseInt(this.$route.query.ancestor)
+        : 0;
+      this.dataForm.from = String(this.$route.query.from);
+    },
     onSubmit() {
       let validator = new AsyncValidator(this.descriptor);
       validator.validate(this.dataForm, (errors, fields) => {
@@ -75,35 +82,63 @@ export default {
           .postTbUserLoginWthSMS({
             mobile: this.dataForm.mobile,
             captcha: this.dataForm.captcha,
-            ancestor: parseInt(this.$route.query.ancestor),
-            from: String(this.$route.query.from)
+            ancestor: this.dataForm.ancestor,
+            from: this.dataForm.from
           })
           .then(({ data }) => {
-            if (data.code == 0) {
-              let expires = moment()
-                .add(15, "days")
-                .toDate();
-              cookie.set("token", data.data.token, {
-                expires: expires
-              }),
-                cookie.set(
-                  "token_valid_time",
-                  JSON.stringify({
-                    expired_at: data.data.expired_at,
-                    refresh_expired_at: data.data.refresh_expired_at
-                  }),
-                  {
-                    expires: expires
+            switch (data.code) {
+              case 0:
+                this.loginSuccess(data);
+                break;
+              case 20304:
+                this.$refs["loginWrapper"].style.display = "none";
+                this.$vux.confirm.show({
+                  title: "温馨提示",
+                  content:
+                    "你目前没有推荐人,独立参赛,将失去获得额外推荐奖的机会,推荐奖的奖金最高25万元",
+                  confirmText: "确认独立参赛",
+                  cancelText: "我要参与团队推荐",
+                  onConfirm: () => {
+                    this.$refs["loginWrapper"].style.display = "block";
+                    this.dataForm.from = "aloneSignUp";
+                    this.onSubmit();
+                  },
+                  onCancel: () => {
+                    this.$refs["loginWrapper"].style.display = "block";
+                    store.commit("login/updateDialogLoginStatus", false);
+                    this.$router.push({
+                      name: "voteTeamRec",
+                      query: { voteID: this.$route.query.voteID }
+                    });
                   }
-                );
-              this.$vux.toast.text("登录成功", "top");
-              store.commit("login/updateLoginSuccess", true);
-              store.commit("login/updateDialogLoginStatus", false);
-            } else {
-              this.$vux.toast.text(data.message, "top");
+                });
+                break;
+              default:
+                this.$vux.toast.text(data.message, "top");
             }
           });
       });
+    },
+    loginSuccess(data) {
+      let expires = moment()
+        .add(15, "days")
+        .toDate();
+      cookie.set("token", data.data.token, {
+        expires: expires
+      }),
+        cookie.set(
+          "token_valid_time",
+          JSON.stringify({
+            expired_at: data.data.expired_at,
+            refresh_expired_at: data.data.refresh_expired_at
+          }),
+          {
+            expires: expires
+          }
+        );
+      this.$vux.toast.text("登录成功", "top");
+      store.commit("login/updateLoginSuccess", true);
+      store.commit("login/updateDialogLoginStatus", false);
     }
   }
 };
@@ -116,6 +151,14 @@ export default {
 }
 .fade-own-enter, .fade-own-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
+}
+.weui-dialog__btn_default {
+  color: #f56c6c;
+  font-size: 16px;
+}
+.weui-dialog__btn_primary {
+  color: #909399;
+  font-size: 16px;
 }
 .login-wrapper {
   position: relative;

@@ -5,23 +5,38 @@
     </div>
     <div class="arc-panel">
       <div class="works-info">
-        <flexbox>
-          <flexbox-item :span="8">
-            <div class="number">
-              推广人数: <span>{{userInfo.subUserCount}}</span>
-            </div>
-            <div class="tip">生成推荐海报,被推荐者中奖,<br />你可以额外获得最高25万的奖励</div>
-          </flexbox-item>
-          <flexbox-item :span="4">
-            <span class="share-btn" @click="createPoster">
-              立即分享
-            </span>
-          </flexbox-item>
-        </flexbox>
-        <div class="link">
-          <a href="http://vip.zahanna.vip/">
-            <icon-svg name="right-ins" class="svg"></icon-svg>加盟“齿哈尼”并参与活动，将可以获得更多惊喜
-          </a>
+        <div class="identity-zero" v-if="userInfo.identity === 0 || userInfo.identity === 2">
+          <flexbox>
+            <flexbox-item :span="8">
+              <div class="number">
+                推广人数: <span class="value">{{userInfo.subUserCount}}</span>
+                <span class="text" v-if="userInfo.subUserCount>0" @click="showMytree=true">[查看]</span>
+              </div>
+              <div class="tip">生成推荐海报,被推荐者中奖,<br />你可以额外获得最高25万的奖励</div>
+            </flexbox-item>
+            <flexbox-item :span="4">
+              <span class="share-btn" @click="createPoster">
+                立即分享
+              </span>
+            </flexbox-item>
+          </flexbox>
+          <div class="link">
+            <a href="http://vip.zahanna.vip/">
+              <icon-svg name="right-ins" class="svg"></icon-svg>加盟“齿哈尼”并参与活动，将可以获得更多惊喜
+            </a>
+          </div>
+        </div>
+        <div class="identity-one" v-if="userInfo.identity === 1">
+          <flexbox>
+            <flexbox-item :span="8">
+              <div class="tip">加盟“齿哈尼”并参与活动，<br />将可以获得更多惊喜</div>
+            </flexbox-item>
+            <flexbox-item :span="4">
+              <a class="share-btn" href="http://vip.zahanna.vip/">
+                立即加盟
+              </a>
+            </flexbox-item>
+          </flexbox>
         </div>
       </div>
     </div>
@@ -33,6 +48,14 @@
             <p class="secondary">{{formatSignUpStartTime}} 至 {{formatSignUpEndTime}}</p>
           </div>
           <div class="form-wrapper">
+            <flexbox :gutter="10" class="form-row" v-if="dataForm.status">
+              <flexbox-item :span="2" class="cell-title">
+                <span>编号</span>
+              </flexbox-item>
+              <flexbox-item>
+                <span class="noid">21</span>
+              </flexbox-item>
+            </flexbox>
             <flexbox :gutter="10" class="form-row">
               <flexbox-item :span="2" class="cell-title">
                 <span>姓名</span>
@@ -100,6 +123,25 @@
         <span style="font-size:30px;">请重新扫码进入</span>
       </p>
     </x-dialog>
+    <!--子层用户树-->
+    <x-dialog v-model="showMytree" :hide-on-blur="false" :dialog-style="{'max-width': '100%', width: '100%', height: '50%', 'background-color': 'transparent'}">
+      <div class="my-tree-page">
+        <div class="wrapper">
+          <tree ref='tree'>
+            <span class="tree-text" slot-scope="{ node }">
+              <template v-if="!node.data.icon">
+                {{ node.text }}
+              </template>
+              <template v-else>
+                <icon-svg :name="node.data.icon" class="svg"></icon-svg>
+                {{ node.text }}
+              </template>
+            </span>
+          </tree>
+        </div>
+      </div>
+      <x-icon type="ios-close-outline" style="fill:#fff;" @click="showMytree = false"></x-icon>
+    </x-dialog>
   </div>
 </template>
 
@@ -114,11 +156,13 @@ import qs from "querystringify";
 import { parseURL } from "@/utils/common";
 import { setTimeout } from "timers";
 import moment from "moment";
+import LiquorTree from "liquor-tree";
 export default {
   components: {
     Flexbox,
     FlexboxItem,
-    XDialog
+    XDialog,
+    [LiquorTree.name]: LiquorTree
   },
   data() {
     return {
@@ -128,11 +172,13 @@ export default {
       qrocdeSrc: "",
       showErrUrl: false,
       showForm: false,
+      showMytree: false,
       dataForm: {
         voteID: this.$route.query.voteID,
         voteWorksID: 0,
         title: "",
         words: "",
+        status: false,
         from: this.$route.query.from,
         ancestor: this.$route.query.ancestor
       },
@@ -144,7 +190,8 @@ export default {
       userInfo: {
         subUserCount: "-",
         userID: "",
-        mobile: ""
+        mobile: "",
+        identity: ""
       },
       descriptor: {
         title: {
@@ -169,11 +216,7 @@ export default {
     };
   },
   created() {
-    if (
-      !this.dataForm.voteID ||
-      !this.dataForm.from ||
-      !this.dataForm.ancestor
-    ) {
+    if (!this.dataForm.voteID || !this.dataForm.from) {
       this.showErrUrl = true;
       return;
     }
@@ -210,6 +253,7 @@ export default {
     async getData() {
       await this.getTbSubUserNodeCount();
       await this.getTbVoteWorks();
+      this.getSubUserNodeData();
     },
     getTbVote() {
       this.$http
@@ -231,6 +275,7 @@ export default {
           this.userInfo.subUserCount = data.data.count;
           this.userInfo.userID = data.data.userID;
           this.userInfo.mobile = data.data.mobile;
+          this.userInfo.identity = data.data.identity;
           this.$nextTick(() => {
             let urlSource = parseURL(window.location.href);
             let createUrlParams = qs.stringify(
@@ -266,8 +311,30 @@ export default {
             this.dataForm.voteWorksID = data.data.voteWorksId;
             this.dataForm.title = data.data.title;
             this.dataForm.words = data.data.words;
+            this.dataForm.status = data.data.status;
           }
         });
+    },
+    getSubUserNodeData() {
+      this.$http.getTbSubUserNode().then(({ data }) => {
+        if (data.code === 0) {
+          let userNode = [];
+          for (let i = 1; i <= data.data.maxDistance; i++) {
+            userNode.push({
+              text: `${i}层用户`,
+              data: { icon: "team" },
+              children: []
+            });
+          }
+          data.data.list.forEach((item, index) => {
+            userNode[item.distance - 1].children.push({
+              text: item.mobile,
+              data: { icon: "user" }
+            });
+          });
+          this.$refs.tree.setModel(userNode);
+        }
+      });
     },
     createPoster() {
       this.loadingShow = true;
@@ -371,9 +438,15 @@ export default {
       padding: 20px;
       box-sizing: border-box;
       color: #333333;
-      .number span {
-        color: #ee4b3e;
-        font-size: 20px;
+      .number {
+        .value {
+          color: #ee4b3e;
+          font-size: 20px;
+        }
+        .text {
+          color: #ee4b3e;
+          font-size: 12px;
+        }
       }
       .tip {
         color: #909399;
@@ -410,6 +483,14 @@ export default {
           vertical-align: sub;
         }
       }
+      .identity-zero {
+      }
+      .identity-one {
+        margin-top: 25px;
+        .tip {
+          color: #e6a23c;
+        }
+      }
     }
   }
   .vote-works-wrapper {
@@ -434,6 +515,10 @@ export default {
       overflow: hidden;
       .form-row {
         margin-bottom: 20px;
+        .noid {
+          font-size: 14px;
+          padding: 6px;
+        }
         .cell-title {
           font-size: 16px;
           color: #333333;
@@ -548,6 +633,9 @@ export default {
         img {
           margin: 10px 0;
         }
+        video {
+          width: 100%;
+        }
       }
     }
   }
@@ -605,6 +693,30 @@ export default {
     bottom: 0;
     background: rgba(255, 255, 255, 1);
     display: none;
+  }
+  .white-mask {
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 1);
+    display: none;
+  }
+  .my-tree-page {
+    padding: 20px;
+    box-sizing: border-box;
+    .wrapper {
+      min-height: 45vh;
+      max-height: 80vh;
+      background-color: #fff;
+      box-shadow: 0 3px 20px rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+      box-sizing: border-box;
+      padding: 10px;
+      overflow: auto;
+    }
   }
 }
 </style>

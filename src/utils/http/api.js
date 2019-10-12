@@ -51,6 +51,11 @@ const api = {
     method: 'get',
     params: httpRequest.adornParams(params)
   }),
+  getTbSubUserNode: (params = {}) => httpRequest({
+    url: httpRequest.adornUrl('/v1/userTree/getTbSubUserNode'),
+    method: 'get',
+    params: httpRequest.adornParams(params)
+  }),
   //tbVote
   getTbVote: (params = {}) => httpRequest({
     url: httpRequest.adornUrl('/v1/tbVote/getFromServer'),
