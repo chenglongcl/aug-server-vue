@@ -10,6 +10,7 @@ const DemoTest = () =>
   import('@/views/demo/test')
 const DemoTestTwo = () =>
   import('@/views/demo/testtwo')
+const DemoWSTest = () => import('@/views/demo/wsTest/wsTest')
 
 export default [{
   path: '/',
@@ -57,4 +58,11 @@ export default [{
     index: 3
   },
   component: DemoDetail
-}]
+}, {
+  path: '/demo/wsTest',
+  name: 'DemoWSTest',
+  meta: {
+    index: 2
+  },
+  component: DemoWSTest,
+}, ]

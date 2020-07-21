@@ -1,29 +1,31 @@
 <template>
   <div class="page">
-    <div class="block-one">
-      <icon-svg name="rank-my" class="svg"></icon-svg>
-      <icon-svg name="play" class="svg"></icon-svg>
-    </div>
+
   </div>
 </template>
 <script>
+import { Manager } from "@/net/manager";
+import { msg } from "@/net/bundle";
+import { Connection } from "@/net/connection";
 export default {
   components: {},
   data() {
-    return {};
+    return {
+      conn: null
+    };
   },
-  created() {},
+  created() {
+    this.conn = Manager.getInstance().openConnection(() => {
+      let csUserLogin = new msg.CSUserLogin();
+      csUserLogin.roomID = 1
+      this.conn.sendMsg(csUserLogin);
+      this.conn.onMsg(msg.SCResponse, (data) => {
+        console.log(data);
+      });
+    });
+  },
   methods: {}
 };
 </script>
 <style lang="less">
-.page {
-  padding: 10px;
-  .block-one {
-    .svg {
-      font-size: 28px;
-      fill: #e6a23c;
-    }
-  }
-}
 </style>
