@@ -483,8 +483,6 @@ export default {
           vertical-align: sub;
         }
       }
-      .identity-zero {
-      }
       .identity-one {
         margin-top: 25px;
         .tip {
@@ -681,8 +679,6 @@ export default {
       width: 80%;
       margin: 0 auto 10px auto;
     }
-  }
-  .login-dialog {
   }
   .white-mask {
     position: fixed;
